@@ -2,37 +2,68 @@ package tictactoe
 
 import java.util.*
 
+val player1 = "X"
+val player2 = "O"
+var currentPlayer = ""
+
+/*
+Controls game logic and flow
+*/
 fun main() {
-    // Handling the input string
-    print("Enter Cells: ")
-    var board: String = readLine()!!
+    // Creating empty board
+    var board = "_________"
     printBoard(board)
+
+    // Giving player1 first move
+    currentPlayer = "X"
+
+    // Initialising status to 'Game not finished'
     var status = checkWin(board)
-    println(status)
-    // Handling user move
+
+    // Initialising user coordinates
     var validCoord = false
     var col = 0
     var row = 0
-    while (!validCoord) {
-        println("Make a move in the format 'Column Row': ")
-        val coord = readLine()!!
-//        println("entered coordinates are: ${coord[0]}, ${coord[2]}")
-        if (!coord[0].isDigit() || !coord[2].isDigit()) {
-            println("You should enter numbers!")
-        } else if (coord[0].toString().toInt() > 3 || coord[0].toString().toInt() < 1 || coord[2].toString().toInt() > 3 || coord[2].toString().toInt() < 1) {
-            println("Coordinates should be from 1 to 3!")
-        } else if (cellOccupied(board, coord)) {
-            println("This cell is occupied! Choose another one!")
-        } else {
-            validCoord = true
-            col = coord[0].toString().toInt()
-            row = coord[2].toString().toInt()
+
+    // Main game logic
+    while (status == "Game not finished") {
+        validCoord = false
+        while (!validCoord) {
+            println("$currentPlayer, choose coordinates in the format 'Column Row': ")
+            val coord = readLine()!!
+            println("Entered coords: $coord")
+            if (coord.length != 3) {
+                println("Insufficient input length!")
+            } else if (!coord[0].isDigit() || !coord[2].isDigit()) {
+                println("You should enter numbers!")
+            } else if (coord[0].toString().toInt() > 3 || coord[0].toString().toInt() < 1 || coord[2].toString().toInt() > 3 || coord[2].toString().toInt() < 1) {
+                println("Coordinates should be from 1 to 3!")
+            } else if (cellOccupied(board, coord)) {
+                println("This cell is occupied! Choose another one!")
+            } else {
+                validCoord = true
+                col = coord[0].toString().toInt()
+                row = coord[2].toString().toInt()
+            }
         }
+        board = updateBoard(col, row, board)
+        printBoard(board)
+        status = checkWin(board)
+        takeTurns()
     }
-//    println("column: $col row: $row")
-    board = updateBoard(col, row, board)
-//    println(board)
-    printBoard(board)
+    // Prints game result
+    println(status)
+}
+
+/*
+  This function decides whose turn it is.
+ */
+fun takeTurns() {
+    currentPlayer = if (player1 == currentPlayer) {
+        player2
+    } else {
+        player1
+    }
 }
 
 /*
@@ -61,13 +92,19 @@ fun updateBoard(col: Int, row: Int, board: String): String {
             }
         }
     }
-    boardArray[col-1][row-1] = 'X'
+    // Assigning either X or O to the correct place dependent on current player and coordinates
+    boardArray[col-1][row-1] = if (player1 == currentPlayer) {
+        'X'
+    } else {
+        'O'
+    }
+    // Converting board back to string
     for (i in boardArray.indices) {
         for (j in 0..2) {
             newBoard += (boardArray[i][j].toString())
         }
     }
-    return newBoard //FIX ME
+    return newBoard
 }
 
 /*
